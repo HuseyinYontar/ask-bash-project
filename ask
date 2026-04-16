@@ -1,5 +1,22 @@
 #!/bin/bash
 
+
+if [[ "$ASK_API_URL" == "" ]]; then
+  echo "Error: ASK_API_URL is not set."
+  exit 1
+fi
+
+if [[ "$ASK_MODEL" == "" ]]; then
+  echo "Error: ASK_MODEL is not set."
+  exit 1
+fi
+
+if [[ "$ASK_API_KEY" == "" ]]; then
+  echo "Error: ASK_API_KEY is not set."
+  exit 1
+fi
+
+
 curl "$ASK_API_URL" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $ASK_API_KEY" \
