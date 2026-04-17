@@ -1,27 +1,46 @@
 #!/bin/bash
 
 
-if [[ "$ASK_API_URL" == "" ]]; then
+if [[ "${ASK_API_URL:-}" == "" ]]; then
   echo "Error: ASK_API_URL is not set."
   exit 1
 fi
 
-if [[ "$ASK_MODEL" == "" ]]; then
+if [[ "${ASK_MODEL:-}" == "" ]]; then
   echo "Error: ASK_MODEL is not set."
   exit 1
 fi
 
-if [[ "$ASK_API_KEY" == "" ]]; then
+if [[ "${ASK_API_KEY:-}" == "" ]]; then
   echo "Error: ASK_API_KEY is not set."
   exit 1
 fi
 
+USER_PROMPT=""
+if [ ! -t 0 ]; then
+  USER_PROMPT=$(cat)
+fi
+
+if [ "$#" -gt 0 ]; then
+  if [ -n "$USER_PROMPT" ]; then
+    USER_PROMPT="$USER_PROMPT $*"
+  else
+    USER_PROMPT="$*"
+  fi
+fi
+
+if [ -z "$USER_PROMPT" ]; then
+  echo "Error: No prompt provided."
+  exit 1
+fi
+
+echo "User prompt: $USER_PROMPT"
 
 curl "$ASK_API_URL" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $ASK_API_KEY" \
 -d '{
-	"model": "llama-3.3-70b-versatile",
+	"model": "'$ASK_MODEL'",
 	"messages": [
 	{
 		"role": "system",
@@ -29,6 +48,6 @@ curl "$ASK_API_URL" \
 	},
 	{
 		"role": "user",
-		"content": "Explain the importance of fast language models"
+		"content": "'"$USER_PROMPT"'"
 	}]
 }'
