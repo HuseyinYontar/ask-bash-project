@@ -36,18 +36,28 @@ fi
 
 echo "User prompt: $USER_PROMPT"
 
-curl "$ASK_API_URL" \
+REQUEST_BODY=$(
+  jq -n \
+    --arg model "$ASK_MODEL" \
+    --arg prompt "$USER_PROMPT" \
+    '{
+      model: $model,
+      messages: [
+        {
+          role: "system",
+          content: "You are a CLI tool. Output plain text only. No yapping. Keep the output concise."
+        },
+        {
+          role: "user",
+          content: $prompt
+        }
+      ]
+    }'
+)
+
+
+
+curl "$ASK_API_URL" -s \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $ASK_API_KEY" \
--d '{
-	"model": "'$ASK_MODEL'",
-	"messages": [
-	{
-		"role": "system",
-		"content": "You are a CLI tool. Output plain text only. No yapping. Keep the output concise."
-	},
-	{
-		"role": "user",
-		"content": "'"$USER_PROMPT"'"
-	}]
-}'
+-d "$REQUEST_BODY" | jq '.choices[0].message.content'
