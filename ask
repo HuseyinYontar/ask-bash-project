@@ -17,19 +17,19 @@ if [[ "${ASK_API_KEY:-}" == "" ]]; then
 fi
 
 USER_PROMPT=""
-if [ ! -t 0 ]; then
+if [[ ! -t 0 ]]; then
   USER_PROMPT=$(cat)
 fi
 
-if [ "$#" -gt 0 ]; then
-  if [ -n "$USER_PROMPT" ]; then
+if [[ "$#" -gt 0 ]]; then
+  if [[ -n "$USER_PROMPT" ]]; then
     USER_PROMPT="$USER_PROMPT, $*"
   else
     USER_PROMPT="$*"
   fi
 fi
 
-if [ -z "$USER_PROMPT" ]; then
+if [[ -z "$USER_PROMPT" ]]; then
   echo "Error: No prompt provided."
   exit 1
 fi
