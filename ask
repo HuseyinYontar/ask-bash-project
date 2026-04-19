@@ -23,7 +23,7 @@ fi
 
 if [ "$#" -gt 0 ]; then
   if [ -n "$USER_PROMPT" ]; then
-    USER_PROMPT="$USER_PROMPT $*"
+    USER_PROMPT="$USER_PROMPT, $*"
   else
     USER_PROMPT="$*"
   fi
@@ -33,8 +33,6 @@ if [ -z "$USER_PROMPT" ]; then
   echo "Error: No prompt provided."
   exit 1
 fi
-
-echo "User prompt: $USER_PROMPT"
 
 REQUEST_BODY=$(
   jq -n \
@@ -55,9 +53,17 @@ REQUEST_BODY=$(
     }'
 )
 
-
-
-curl "$ASK_API_URL" -s \
+RESPONSE=$(curl "$ASK_API_URL" -s -w "\n%{http_code}" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $ASK_API_KEY" \
--d "$REQUEST_BODY" | jq '.choices[0].message.content'
+-d "$REQUEST_BODY")
+
+HTTP_STATUS=$(echo "$RESPONSE" | egrep '^[0-9]{3}')
+BODY=$(echo "$RESPONSE" | sed '/^$/,$d')
+
+if [[ "$HTTP_STATUS" == "200" ]]; then
+  echo "$BODY" | jq -r 'if .error then .error.message else .choices[0].message.content end'
+else
+  echo "Error: HTTP Status Code $HTTP_STATUS"
+  echo "$BODY" | jq -r '.error.message // .message // .error_description // .detail // .'
+fi
