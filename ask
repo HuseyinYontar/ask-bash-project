@@ -58,8 +58,19 @@ RESPONSE=$(curl "$ASK_API_URL" -s -w "\n%{http_code}" \
 -H "Authorization: Bearer $ASK_API_KEY" \
 -d "$REQUEST_BODY")
 
+if [[ $? != 0 ]]; then
+  echo "Error: Failed to connect to the API."
+  exit 1
+fi
+
 HTTP_STATUS=$(echo "$RESPONSE" | egrep '^[0-9]{3}')
 BODY=$(echo "$RESPONSE" | sed '/^$/,$d')
+
+if ! echo "$BODY" | jq . > /dev/null 2>&1; then
+  echo "Error: Invalid JSON response."
+  exit 1
+fi
+
 
 if [[ "$HTTP_STATUS" == "200" ]]; then
   echo "$BODY" | jq -r 'if .error then .error.message else .choices[0].message.content end'
