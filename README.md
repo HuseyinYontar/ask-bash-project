@@ -1,22 +1,23 @@
 # ask-bash-project
 
-A lightweight bash CLI wrapper for interacting with AI APIs. Send prompts via the command line and receive concise responses.
+A mini bash project for interacting with LLM APIs. Send prompts via the command line and receive responses.
 
 ## Features
 
-- Simple command-line interface for AI queries
+- Simple command-line interface for LLM queries
 - Support for piped input and command-line arguments
 - Minimal dependencies (bash, curl, jq)
 - Supports any OpenAI-compatible API
 
 ## Installation
 
-1. Ensure you have `bash`, `curl`, and `jq` installed
-2. Make the script executable:
+1. Clone the project.
+2. Ensure you have `bash`, `curl`, and `jq` installed
+3. Make the script executable:
    ```bash
    chmod +x ask
    ```
-3. Set required environment variables
+4. Set required environment variables
 
 ## Usage
 
@@ -52,7 +53,16 @@ cat myfile.txt | ./ask "Summarize this text"
 ./ask "What is the" "capital of Turkey?"
 ```
 
+**Alias Example**
+```bash
+alias ask-fix="./ask 'Correct any grammatical, spelling, or punctuation errors in the input text. Input text:'"
+
+ask-fix Rhythim
+Rhythym
+```
+
 ## Limitations
 
-- **Missing environment variables**: The script will exit with an error if `ASK_API_URL`, `ASK_MODEL`, or `ASK_API_KEY` are not set.
-- **Dependencies required**: Requires `bash`, `curl`, and `jq` to be installed and available in PATH
+- The script will exit with an error if `ASK_API_URL`, `ASK_MODEL`, or `ASK_API_KEY` are not set.
+- Requires `bash`, `curl`, and `jq` to be installed and available in PATH
+- If the API response format differs, jq output may need to be adjusted accordingly.
