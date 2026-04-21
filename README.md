@@ -58,7 +58,7 @@ cat myfile.txt | ./ask "Summarize this text"
 alias ask-fix="./ask 'Correct any grammatical, spelling, or punctuation errors in the input text. Input text:'"
 
 ask-fix Rhythim
-Rhythym
+Rhythm
 ```
 
 ## Limitations
