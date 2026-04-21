@@ -66,3 +66,11 @@ Rhythym
 - The script will exit with an error if `ASK_API_URL`, `ASK_MODEL`, or `ASK_API_KEY` are not set.
 - Requires `bash`, `curl`, and `jq` to be installed and available in PATH
 - If the API response format differs, jq output may need to be adjusted accordingly.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Please see the [CONTRIBUTING.md](CONTRIBUTING.md) guide for details on how to get involved.
