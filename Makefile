@@ -1,6 +1,6 @@
 # Phase 1 — FAN-OUT
 
-all: report.refined
+all: engineering-action-plan
 
 quality:
 	{ echo 'You are reviewing source code for code quality only.' \
@@ -105,5 +105,25 @@ report.refined: report
 	} | ./ask > refined.md
 
 
+# Phase 5 — FAN-IN #2 ENGINEERING ACTION PLAN
+
+engineering-action-plan: report
+	{ echo 'You are creating an Engineering Action Plan from a code review report.' \
+	       'Generate the final output as valid Markdown.' \
+	       'The title must be: # Engineering Action Plan' \
+	       'Convert the review into prioritized engineering actions.' \
+	       'Each action must include priority: High, Medium, or Low.' \
+	       'Each action must include effort estimate: Small, Medium, or Large.' \
+	       'Each action must include execution order as a numbered sequence.' \
+	       'Remove duplicates and combine overlapping items.' \
+	       'Keep only concrete, actionable engineering work.' \
+	       'Do not include vague recommendations.' \
+	       'Output a Markdown table with these columns: Order, Priority, Effort, Action, Reason.' \
+	       'Do not include an introduction or conclusion.' \
+	       'Refined report:'; \
+	  cat concatenated.md; \
+	} | ./ask > action.plan.md
+
+
 clean:
-	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md concatenated.md refined.md
+	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md concatenated.md refined.md action.plan.md
