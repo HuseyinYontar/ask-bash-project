@@ -1,6 +1,6 @@
 # Phase 1 — FAN-OUT
 
-all: report
+all: report.refined
 
 quality:
 	{ echo 'You are reviewing source code for code quality only.' \
@@ -87,8 +87,23 @@ report: quality.sum perf.sum security.sum
 		echo ''; \
 		echo '## Security'; \
 		cat security.sum.md; \
-	} > report.md
+	} > concatenated.md
+
+# Phase 4 — FAN-IN #1 LLM REFINE
+
+report.refined: report
+	{ echo 'You are refining a consolidated source code review report.' \
+	       'The report has three sections: Code Quality, Performance, and Security.' \
+	       'Remove duplicate or overlapping recommendations across sections.' \
+	       'Keep only high-signal issues that are concrete, actionable, and important.' \
+	       'Preserve the same Markdown section headings: ## Code Quality, ## Performance, ## Security.' \
+	       'Each section must contain Markdown bullet points only.' \
+	       'Do not add an introduction, conclusion, summary paragraph, or extra headings.' \
+	       'Output must be valid Markdown.' \
+	       'Report to refine:'; \
+	  cat concatenated.md; \
+	} | ./ask > refined.md
 
 
 clean:
-	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md report.md
+	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md concatenated.md refined.md
