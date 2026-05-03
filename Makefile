@@ -1,6 +1,8 @@
 # Phase 1 — FAN-OUT
 
-code-quality:
+all: quality.sum.md perf.sum.md security.sum.md
+
+quality:
 	{ echo 'You are reviewing source code for code quality only.' \
 		    'Analyze the code provided below for readability, structure, maintainability, duplication, naming, unnecessary complexity, and organization.' \
 		    'Do not focus on performance or security unless it directly affects code quality.' \
@@ -11,7 +13,7 @@ code-quality:
 		    'Do not include an introduction or conclusion.' \
 		    'Code to review:'; \
 		cat codebase.txt; \
-	} | ./ask > code-quality.md
+	} | ./ask > quality.md
 
 performance:
 	{ echo 'You are reviewing source code for performance only.' \
@@ -24,7 +26,7 @@ performance:
 		    'Do not include an introduction or conclusion.' \
 		    'Code to review:'; \
 		cat codebase.txt; \
-	} | ./ask > performance.md
+	} | ./ask > perf.md
 
 security:
 	{ echo 'You are reviewing source code for security only.' \
@@ -38,3 +40,41 @@ security:
 		    'Code to review:'; \
 		cat codebase.txt; \
 	} | ./ask > security.md
+
+# Phase 2 — LOCAL SUMMARIZATION
+
+quality.sum.md: quality
+	{ echo 'You are summarizing a code quality review.' \
+	       'Compress the review below into exactly 5 Markdown bullet points.' \
+	       'Keep only actionable items.' \
+	       'Remove repetition, vague comments, and low-priority observations.' \
+	       'Each bullet must follow this format: - <actionable code quality fix>.' \
+	       'Do not include an introduction or conclusion.' \
+	       'Review to summarize:'; \
+	  cat quality.md; \
+	} | ./ask > quality.sum.md
+
+perf.sum.md: performance
+	{ echo 'You are summarizing a performance review.' \
+	       'Compress the review below into exactly 5 Markdown bullet points.' \
+	       'Keep only actionable optimization items.' \
+	       'Remove repetition, vague comments, and low-priority observations.' \
+	       'Each bullet must follow this format: - <actionable performance optimization>.' \
+	       'Do not include an introduction or conclusion.' \
+	       'Review to summarize:'; \
+	  cat perf.md; \
+	} | ./ask > perf.sum.md
+
+security.sum.md: security
+	{ echo 'You are summarizing a security review.' \
+	       'Compress the review below into exactly 5 Markdown bullet points.' \
+	       'Keep only actionable security items.' \
+	       'Remove repetition, vague comments, and low-priority observations.' \
+	       'Each bullet must follow this format: - <actionable security mitigation>.' \
+	       'Do not include an introduction or conclusion.' \
+	       'Review to summarize:'; \
+	  cat security.md; \
+	} | ./ask > security.sum.md
+
+clean:
+	rm -f quality.md perf.md security.md
