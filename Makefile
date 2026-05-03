@@ -1,6 +1,6 @@
 # Phase 1 — FAN-OUT
 
-all: quality.sum.md perf.sum.md security.sum.md
+all: report
 
 quality:
 	{ echo 'You are reviewing source code for code quality only.' \
@@ -43,7 +43,7 @@ security:
 
 # Phase 2 — LOCAL SUMMARIZATION
 
-quality.sum.md: quality
+quality.sum: quality
 	{ echo 'You are summarizing a code quality review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable items.' \
@@ -54,7 +54,7 @@ quality.sum.md: quality
 	  cat quality.md; \
 	} | ./ask > quality.sum.md
 
-perf.sum.md: performance
+perf.sum: performance
 	{ echo 'You are summarizing a performance review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable optimization items.' \
@@ -65,7 +65,7 @@ perf.sum.md: performance
 	  cat perf.md; \
 	} | ./ask > perf.sum.md
 
-security.sum.md: security
+security.sum: security
 	{ echo 'You are summarizing a security review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable security items.' \
@@ -76,5 +76,19 @@ security.sum.md: security
 	  cat security.md; \
 	} | ./ask > security.sum.md
 
+# Phase 3 — CONCAT REPORT no LLM
+
+report: quality.sum perf.sum security.sum
+	{	echo '## Code Quality'; \
+		cat quality.sum.md; \
+		echo ''; \
+		echo '## Performance'; \
+		cat perf.sum.md; \
+		echo ''; \
+		echo '## Security'; \
+		cat security.sum.md; \
+	} > report.md
+
+
 clean:
-	rm -f quality.md perf.md security.md
+	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md report.md
