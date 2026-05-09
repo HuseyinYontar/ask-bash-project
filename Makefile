@@ -2,7 +2,13 @@
 
 all: engineering-action-plan
 
-quality:
+check-env:
+	@test -n "$$ASK_API_URL" || { echo "Error: ASK_API_URL is not set."; exit 1; }
+	@test -n "$$ASK_API_KEY" || { echo "Error: ASK_API_KEY is not set."; exit 1; }
+	@test -n "$$ASK_MODEL" || { echo "Error: ASK_MODEL is not set."; exit 1; }
+	@echo "Environment check passed."
+
+quality: check-env ask codebase.txt
 	{ echo 'You are reviewing source code for code quality only.' \
 		    'Analyze the code provided below for readability, structure, maintainability, duplication, naming, unnecessary complexity, and organization.' \
 		    'Do not focus on performance or security unless it directly affects code quality.' \
@@ -15,7 +21,7 @@ quality:
 		cat codebase.txt; \
 	} | ./ask > quality.md
 
-performance:
+performance: check-env ask codebase.txt
 	{ echo 'You are reviewing source code for performance only.' \
 		    'Analyze the code provided below for bottlenecks, inefficient algorithms, unnecessary repeated work, excessive memory usage, slow I/O, avoidable network or database calls, and poor scalability.' \
 		    'Do not focus on code style or security unless it directly affects performance.' \
@@ -28,7 +34,7 @@ performance:
 		cat codebase.txt; \
 	} | ./ask > perf.md
 
-security:
+security: check-env ask codebase.txt
 	{ echo 'You are reviewing source code for security only.' \
 		    'Analyze the code provided below for vulnerabilities, unsafe patterns, missing validation, injection risks, authentication or authorization problems, secret exposure, insecure configuration, unsafe file handling, and dependency-related risks.' \
 		    'Do not focus on code style or performance unless it directly affects security.' \
