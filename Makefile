@@ -1,4 +1,4 @@
-.PHONY: all check-env clean quality performance security
+.PHONY: all check-env quality performance security engineering-action-plan
 
 # Phase 1 — FAN-OUT
 
@@ -8,9 +8,16 @@ check-env:
 	@test -n "$$ASK_API_URL" || { echo "Error: ASK_API_URL is not set."; exit 1; }
 	@test -n "$$ASK_API_KEY" || { echo "Error: ASK_API_KEY is not set."; exit 1; }
 	@test -n "$$ASK_MODEL" || { echo "Error: ASK_MODEL is not set."; exit 1; }
+	@test -x "./ask" || { echo "Error: ask executable not found or not executable."; exit 1; } 
 	@echo "Environment check passed."
 
-quality: check-env ask codebase.txt
+quality: quality.md
+
+performance: perf.md
+
+security: security.md
+
+quality.md: codebase.txt ask | check-env
 	@{ echo 'You are reviewing source code for code quality only.' \
 		    'Analyze the code provided below for readability, structure, maintainability, duplication, naming, unnecessary complexity, and organization.' \
 		    'Do not focus on performance or security unless it directly affects code quality.' \
@@ -21,10 +28,10 @@ quality: check-env ask codebase.txt
 		    'Do not include an introduction or conclusion.' \
 		    'Code to review:'; \
 		cat codebase.txt; \
-	} | ./ask > quality.md
+	} | ./ask > $@
 	@echo "Done: quality.md"
 
-performance: check-env ask codebase.txt
+perf.md: codebase.txt ask | check-env
 	@{ echo 'You are reviewing source code for performance only.' \
 		    'Analyze the code provided below for bottlenecks, inefficient algorithms, unnecessary repeated work, excessive memory usage, slow I/O, avoidable network or database calls, and poor scalability.' \
 		    'Do not focus on code style or security unless it directly affects performance.' \
@@ -35,10 +42,10 @@ performance: check-env ask codebase.txt
 		    'Do not include an introduction or conclusion.' \
 		    'Code to review:'; \
 		cat codebase.txt; \
-	} | ./ask > perf.md
+	} | ./ask > $@
 	@echo "Done: perf.md"
 
-security: check-env ask codebase.txt
+security.md: codebase.txt ask | check-env
 	@{ echo 'You are reviewing source code for security only.' \
 		    'Analyze the code provided below for vulnerabilities, unsafe patterns, missing validation, injection risks, authentication or authorization problems, secret exposure, insecure configuration, unsafe file handling, and dependency-related risks.' \
 		    'Do not focus on code style or performance unless it directly affects security.' \
@@ -49,12 +56,12 @@ security: check-env ask codebase.txt
 		    'Do not include an introduction or conclusion.' \
 		    'Code to review:'; \
 		cat codebase.txt; \
-	} | ./ask > security.md
+	} | ./ask > $@
 	@echo "Done: security.md"
 
 # Phase 2 — LOCAL SUMMARIZATION
 
-quality.sum: quality
+quality.sum.md: quality.md ask | check-env
 	@{ echo 'You are summarizing a code quality review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable items.' \
@@ -63,10 +70,10 @@ quality.sum: quality
 	       'Do not include an introduction or conclusion.' \
 	       'Review to summarize:'; \
 	  cat quality.md; \
-	} | ./ask > quality.sum.md
+	} | ./ask > $@
 	@echo "Done: quality.sum.md"
 
-perf.sum: performance
+perf.sum.md: perf.md ask | check-env
 	@{ echo 'You are summarizing a performance review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable optimization items.' \
@@ -75,10 +82,10 @@ perf.sum: performance
 	       'Do not include an introduction or conclusion.' \
 	       'Review to summarize:'; \
 	  cat perf.md; \
-	} | ./ask > perf.sum.md
+	} | ./ask > $@
 	@echo "Done: perf.sum.md"
 
-security.sum: security
+security.sum.md: security.md ask | check-env
 	@{ echo 'You are summarizing a security review.' \
 	       'Compress the review below into exactly 5 Markdown bullet points.' \
 	       'Keep only actionable security items.' \
@@ -87,12 +94,12 @@ security.sum: security
 	       'Do not include an introduction or conclusion.' \
 	       'Review to summarize:'; \
 	  cat security.md; \
-	} | ./ask > security.sum.md
+	} | ./ask > $@
 	@echo "Done: security.sum.md"
 
 # Phase 3 — CONCAT REPORT no LLM
 
-report: quality.sum perf.sum security.sum
+concatenated.md: quality.sum.md perf.sum.md security.sum.md
 	@{	echo '## Code Quality'; \
 		cat quality.sum.md; \
 		echo ''; \
@@ -101,12 +108,12 @@ report: quality.sum perf.sum security.sum
 		echo ''; \
 		echo '## Security'; \
 		cat security.sum.md; \
-	} > concatenated.md
+	} > $@
 	@echo "Done: concatenated.md"
 
 # Phase 4 — FAN-IN #1 LLM REFINE
 
-report.refined: report
+refined.md: concatenated.md ask | check-env
 	@{ echo 'You are refining a consolidated source code review report.' \
 	       'The report has three sections: Code Quality, Performance, and Security.' \
 	       'Remove duplicate or overlapping recommendations across sections.' \
@@ -117,12 +124,14 @@ report.refined: report
 	       'Output must be valid Markdown.' \
 	       'Report to refine:'; \
 	  cat concatenated.md; \
-	} | ./ask > refined.md
+	} | ./ask > $@
 	@echo "Done: refined.md"
 
 # Phase 5 — FAN-IN #2 ENGINEERING ACTION PLAN
 
-engineering-action-plan: report.refined
+engineering-action-plan: action.plan.md
+
+action.plan.md: refined.md ask | check-env
 	@{ echo 'You are creating an Engineering Action Plan from a code review report.' \
 	       'Generate the final output as valid Markdown.' \
 	       'The title must be: # Engineering Action Plan' \
@@ -137,8 +146,5 @@ engineering-action-plan: report.refined
 	       'Do not include an introduction or conclusion.' \
 	       'Refined report:'; \
 	  cat refined.md; \
-	} | ./ask > action.plan.md
+	} | ./ask > $@
 	@echo "Done: action.plan.md"
-
-clean:
-	rm -f quality.md perf.md security.md quality.sum.md perf.sum.md security.sum.md concatenated.md refined.md action.plan.md
